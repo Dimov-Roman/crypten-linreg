@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  worker1:
+    build: .
+    container_name: crypten_worker1
+    command: python -m worker call tasks.mpc:linreg_homework_compare
+    environment:
+      # MPC Communication settings
+      - RENDEZVOUS=env://
+      - MASTER_ADDR=worker1
+      - MASTER_PORT=29500
+      - WORLD_SIZE=2          # Количество воркеров (без TTP)
+      - RANK=0                # ID воркера (Alice)
+      
+      # CrypTen settings
+      - CRYPTEN_PROVIDER_NAME=TTP
+      - PRECISION=16          # Точность encoder (16 бит)
+      
+      # Training parameters
+      - EPOCHS=30             # Количество эпох обучения
+      - BATCH_SIZE=512        # Размер батча
+      
+      # Logging
+      - LOGLEVEL=INFO
+      - PYTHONUNBUFFERED=1
+    
+    volumes:
+      # Монтируем данные воркера 1
+      - ./data/worker1:/data/linreg
+      # Общая папка с homework данными
+      - ./data/homework:/data/linreg/homework
+    
+    networks:
+      - crypten_network
+    
+    # Ждем, пока поднимется TTP
+    depends_on:
+      - ttp
+
+  worker2:
+    build: .
+    container_name: crypten_worker2
+    command: python -m worker call tasks.mpc:linreg_homework_compare
+    environment:
+      # MPC Communication settings
+      - RENDEZVOUS=env://
+      - MASTER_ADDR=worker1   # Подключаемся к worker1
+      - MASTER_PORT=29500
+      - WORLD_SIZE=2          # Количество воркеров (без TTP)
+      - RANK=1                # ID воркера (Bob)
+      
+      # CrypTen settings
+      - CRYPTEN_PROVIDER_NAME=TTP
+      - PRECISION=16
+      
+      # Training parameters
+      - EPOCHS=30
+      - BATCH_SIZE=512
+      
+      # Logging
+      - LOGLEVEL=INFO
+      - PYTHONUNBUFFERED=1
+    
+    volumes:
+      # Монтируем данные воркера 2
+      - ./data/worker2:/data/linreg
+      # Общая папка с homework данными
+      - ./data/homework:/data/linreg/homework
+    
+    networks:
+      - crypten_network
+    
+    # Ждем, пока поднимется worker1 и TTP
+    depends_on:
+      - worker1
+      - ttp
+
+  ttp:
+    build: .
+    container_name: crypten_ttp
+    command: python -m worker call tasks.mpc:ttp
+    environment:
+      # MPC Communication settings
+      - RENDEZVOUS=env://
+      - MASTER_ADDR=worker1
+      - MASTER_PORT=29500
+      - WORLD_SIZE=2          # Количество воркеров (TTP не считается)
+      - RANK=2                # Специальный rank для TTP
+      
+      # CrypTen settings
+      - CRYPTEN_PROVIDER_NAME=TTP
+      - PRECISION=16
+      
+      # Logging (минимальное для TTP)
+      - LOGLEVEL=ERROR
+      - PYTHONUNBUFFERED=1
+    
+    networks:
+      - crypten_network
+    
+    # TTP должен стартовать первым
+    restart: unless-stopped
+
+networks:
+  crypten_network:
+    driver: bridge
