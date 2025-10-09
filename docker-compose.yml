@@ -9,17 +9,17 @@ services:
       - RENDEZVOUS=env://
       - MASTER_ADDR=worker1
       - MASTER_PORT=29500
-      - WORLD_SIZE=2          
-      - RANK=0              
+      - WORLD_SIZE=2
+      - RANK=0
       - CRYPTEN_PROVIDER_NAME=TTP
-      - PRECISION=16          
-      - EPOCHS=30             
-      - BATCH_SIZE=512       
+      - PRECISION=16
+      - EPOCHS=30
+      - BATCH_SIZE=512
       - LOGLEVEL=INFO
       - PYTHONUNBUFFERED=1
     volumes:
       - ./data/worker1:/data/linreg
-      - ./data/homework:/data/linreg/homework
+      - ./data:/data/linreg/homework    
     networks:
       - crypten_network
     depends_on:
@@ -31,10 +31,10 @@ services:
     command: python -m worker call tasks.mpc:linreg_homework_compare
     environment:
       - RENDEZVOUS=env://
-      - MASTER_ADDR=worker1  
+      - MASTER_ADDR=worker1
       - MASTER_PORT=29500
-      - WORLD_SIZE=2         
-      - RANK=1              
+      - WORLD_SIZE=2
+      - RANK=1
       - CRYPTEN_PROVIDER_NAME=TTP
       - PRECISION=16
       - EPOCHS=30
@@ -43,7 +43,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./data/worker2:/data/linreg
-      - ./data/homework:/data/linreg/homework
+      - ./data:/data/linreg/homework 
     networks:
       - crypten_network
     depends_on:
@@ -58,8 +58,8 @@ services:
       - RENDEZVOUS=env://
       - MASTER_ADDR=worker1
       - MASTER_PORT=29500
-      - WORLD_SIZE=2          
-      - RANK=2               
+      - WORLD_SIZE=2
+      - RANK=2
       - CRYPTEN_PROVIDER_NAME=TTP
       - PRECISION=16
       - LOGLEVEL=ERROR
@@ -67,6 +67,7 @@ services:
     networks:
       - crypten_network
     restart: unless-stopped
+
 networks:
   crypten_network:
     driver: bridge
