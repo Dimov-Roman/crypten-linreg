@@ -125,6 +125,14 @@ Secure Multiparty Computation - https://en.wikipedia.org/wiki/Secure_multi-party
 
 PyTorch Documentation - https://pytorch.org/docs/
 
-## Автор
+##  Лицензия
 
-Roman Dimov
+Этот проект предоставляется в образовательных целях.
+
+##  Автор
+
+Dimov Roman
+
+---
+
+**Примечание**: Это учебная реализация. Для использования в продакшене требуется дополнительное укрепление безопасности и оптимизация производительности.
