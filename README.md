@@ -128,7 +128,3 @@ PyTorch Documentation - https://pytorch.org/docs/
 ## Автор
 
 Roman Dimov
-
-## Лицензия
-
-MIT License
